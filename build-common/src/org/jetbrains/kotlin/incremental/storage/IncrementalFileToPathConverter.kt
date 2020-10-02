@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.incremental.storage
 
 import java.io.File
 
-open class IncrementalFileToPathConverter(baseDirFile: File) : FileToPathConverter {
+open class IncrementalFileToPathConverter(val baseDirFile: File) : FileToPathConverter {
     //project root dir
     private val projectDirPath = baseDirFile.absolutePath/*.let { normalize(it)}*/
 
@@ -17,18 +17,14 @@ open class IncrementalFileToPathConverter(baseDirFile: File) : FileToPathConvert
 //            throw IllegalStateException("Path $path is out of project dir $projectDirPath")
 //        }
         return when {
-            projectDirPath != null && path.startsWith(projectDirPath) ->
-                PROJECT_DIR_PLACEHOLDER + path.substring(projectDirPath.length)
+            path.startsWith(projectDirPath) -> PROJECT_DIR_PLACEHOLDER + path.substring(projectDirPath.length)
             else -> path
         }
     }
 
     override fun toFile(path: String): File =
         when {
-            path.startsWith(PROJECT_DIR_PLACEHOLDER) -> {
-                val basePath = projectDirPath ?: error("Could not get project root dir")
-                File(basePath + path.substring(PROJECT_DIR_PLACEHOLDER.length))
-            }
+            path.startsWith(PROJECT_DIR_PLACEHOLDER) -> baseDirFile.resolve(path.substring(PROJECT_DIR_PLACEHOLDER.length))
             else -> File(path)
         }
 
