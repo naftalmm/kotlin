@@ -77,10 +77,14 @@ open class DefaultCInteropSettings @Inject constructor(
 
     val compilerOpts = mutableListOf<String>()
     val linkerOpts = mutableListOf<String>()
-    val extraOpts: List<String>
+    var extraOpts: List<String>
         get() = _extraOptsProp.get()
+        set(value) {
+            _extraOptsProp = project.objects.listProperty(String::class.java)
+            extraOpts(value)
+        }
 
-    private val _extraOptsProp: ListProperty<String> = project.objects.listProperty(String::class.java)
+    private var _extraOptsProp: ListProperty<String> = project.objects.listProperty(String::class.java)
 
     val includeDirs = DefaultIncludeDirectories()
     var headers: FileCollection = project.files()
