@@ -241,8 +241,8 @@ open class KotlinCocoapodsPlugin : Plugin<Project> {
 
                     with(interop) {
                         defFileProperty.set(defTask.map { it.outputFile })
-                        packageName.set(pod.packageName)
-                        extraOpts.addAll(pod.extraOpts)
+                        packageName = pod.packageName
+                        extraOpts(pod.extraOpts)
                     }
 
                     if (

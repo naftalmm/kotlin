@@ -917,7 +917,7 @@ open class CInteropProcess : DefaultTask() {
         @InputFile get() = settings.defFileProperty.get()
 
     val packageName: String?
-        @Optional @Input get() = settings.packageName.orNull
+        @Optional @Input get() = settings.packageName
 
     val compilerOpts: List<String>
         @Input get() = settings.compilerOpts
@@ -938,7 +938,7 @@ open class CInteropProcess : DefaultTask() {
         @InputFiles get() = settings.dependencyFiles.filterOutPublishableInteropLibs(project)
 
     val extraOpts: List<String>
-        @Input get() = settings.extraOpts.get()
+        @Input get() = settings.extraOpts
 
     val kotlinNativeVersion: String
         @Input get() = project.konanVersion.toString()

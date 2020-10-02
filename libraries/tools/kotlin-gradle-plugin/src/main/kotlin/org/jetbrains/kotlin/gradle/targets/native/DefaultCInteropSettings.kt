@@ -16,7 +16,6 @@ import org.gradle.util.ConfigureUtil
 import org.jetbrains.kotlin.gradle.plugin.CInteropSettings
 import org.jetbrains.kotlin.gradle.plugin.CInteropSettings.IncludeDirectories
 import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
-import org.jetbrains.kotlin.gradle.utils.newProperty
 import java.io.File
 import javax.inject.Inject
 
@@ -68,11 +67,20 @@ open class DefaultCInteropSettings @Inject constructor(
             defFileProperty.set(value)
         }
 
-    val packageName: Property<String> = project.objects.property(String::class.java)
+    var packageName: String?
+        get() = _packageNameProp.orNull
+        set(value) {
+            value?.also { _packageNameProp.set(project.provider { it }) }
+        }
+
+    internal val _packageNameProp: Property<String> = project.objects.property(String::class.java)
 
     val compilerOpts = mutableListOf<String>()
     val linkerOpts = mutableListOf<String>()
-    val extraOpts: ListProperty<String> = project.objects.listProperty(String::class.java)// mutableListOf<String>()
+    val extraOpts: List<String>
+        get() = _extraOptsProp.get()
+
+    private val _extraOptsProp: ListProperty<String> = project.objects.listProperty(String::class.java)
 
     val includeDirs = DefaultIncludeDirectories()
     var headers: FileCollection = project.files()
@@ -84,7 +92,7 @@ open class DefaultCInteropSettings @Inject constructor(
     }
 
     override fun packageName(value: String) {
-        packageName.set(value)
+        packageName = value
     }
 
     override fun header(file: Any) = headers(file)
@@ -110,6 +118,6 @@ open class DefaultCInteropSettings @Inject constructor(
 
     override fun extraOpts(vararg values: Any) = extraOpts(values.toList())
     override fun extraOpts(values: List<Any>) {
-        extraOpts.addAll(values.map { it.toString() })
+        _extraOptsProp.addAll(project.provider { values.map { it.toString() } })
     }
 }
