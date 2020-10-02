@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.resolve.calls;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import kotlin.Pair;
 import kotlin.collections.CollectionsKt;
 import org.jetbrains.annotations.NotNull;
@@ -446,15 +447,16 @@ public class CallResolver {
 
         if (constructorDescriptor.getConstructedClass().getKind() == ClassKind.ENUM_CLASS && call.isImplicit()) {
             if (currentClassDescriptor.getUnsubstitutedPrimaryConstructor() != null) {
-                DiagnosticFactory0<KtConstructorDelegationCall> warningOrError;
+                DiagnosticFactory0<KtSecondaryConstructor> warningOrError;
 
                 if (languageVersionSettings.supportsFeature(LanguageFeature.RequiredPrimaryConstructorDelegationCallInEnums)) {
                     warningOrError = PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED; // error
                 } else {
                     warningOrError = PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED_IN_ENUM; // warning
                 }
-
-                context.trace.report(warningOrError.on((KtConstructorDelegationCall) calleeExpression.getParent()));
+                KtSecondaryConstructor reportOn = PsiTreeUtil
+                        .getParentOfType(calleeExpression.getParent(), KtSecondaryConstructor.class, true);
+                context.trace.report(warningOrError.on(reportOn));
             }
             return null;
         }
@@ -484,9 +486,9 @@ public class CallResolver {
         if (!isThisCall && currentClassDescriptor.getUnsubstitutedPrimaryConstructor() != null) {
             if (DescriptorUtils.canHaveDeclaredConstructors(currentClassDescriptor)) {
                 // Diagnostic is meaningless when reporting on interfaces and object
-                context.trace.report(PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED.on(
-                        (KtConstructorDelegationCall) calleeExpression.getParent()
-                ));
+                KtSecondaryConstructor reportOn = PsiTreeUtil
+                        .getParentOfType(calleeExpression.getParent(), KtSecondaryConstructor.class, true);
+                context.trace.report(PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED.on(reportOn));
             }
             if (call.isImplicit()) return OverloadResolutionResultsImpl.nameNotFound();
         }
