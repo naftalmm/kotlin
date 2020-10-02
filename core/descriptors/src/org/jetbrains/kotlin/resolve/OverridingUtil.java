@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.checker.*;
+import org.jetbrains.kotlin.types.model.TypeConstructorMarker;
 import org.jetbrains.kotlin.types.typeUtil.TypeUtilsKt;
 import org.jetbrains.kotlin.utils.SmartSet;
 
@@ -404,6 +405,13 @@ public class OverridingUtil {
                     @Override
                     public boolean areEqualTypeConstructors(@NotNull TypeConstructor a, @NotNull TypeConstructor b) {
                         return super.areEqualTypeConstructors(a, b) || areEqualTypeConstructorsByAxioms(a, b);
+                    }
+
+                    @Override
+                    public boolean isEqualTypeConstructors(
+                            @NotNull TypeConstructorMarker c1, @NotNull TypeConstructorMarker c2
+                    ) {
+                        return areEqualTypeConstructors(c1, c2);
                     }
 
                     private boolean areEqualTypeConstructorsByAxioms(@NotNull TypeConstructor a, @NotNull TypeConstructor b) {
