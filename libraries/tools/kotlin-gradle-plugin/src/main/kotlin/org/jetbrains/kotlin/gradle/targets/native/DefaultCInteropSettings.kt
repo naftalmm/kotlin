@@ -67,11 +67,8 @@ open class DefaultCInteropSettings @Inject constructor(
             defFileProperty.set(value)
         }
 
-    var packageName: String?
+    val packageName: String?
         get() = _packageNameProp.orNull
-        set(value) {
-            value?.also { _packageNameProp.set(project.provider { it }) }
-        }
 
     internal val _packageNameProp: Property<String> = project.objects.property(String::class.java)
 
@@ -96,7 +93,7 @@ open class DefaultCInteropSettings @Inject constructor(
     }
 
     override fun packageName(value: String) {
-        packageName = value
+        _packageNameProp.set(value)
     }
 
     override fun header(file: Any) = headers(file)
