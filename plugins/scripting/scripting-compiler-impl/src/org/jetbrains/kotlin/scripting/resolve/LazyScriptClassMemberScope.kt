@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope
+import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.KotlinTypeFactory
 import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
@@ -33,6 +34,15 @@ class LazyScriptClassMemberScope(
                     }
                 }
             }
+
+    override fun getContributedDescriptors(
+        kindFilter: DescriptorKindFilter,
+        nameFilter: (Name) -> Boolean
+    ): Collection<DeclarationDescriptor> =
+        if (scriptDescriptor.hasResultValue)
+            super.getContributedDescriptors(kindFilter, nameFilter) + scriptDescriptor.resultValue!!
+        else
+            super.getContributedDescriptors(kindFilter, nameFilter)
 
     private val scriptPrimaryConstructor: () -> ClassConstructorDescriptorImpl? = resolveSession.storageManager.createNullableLazyValue {
         val baseClass = scriptDescriptor.baseClassDescriptor()

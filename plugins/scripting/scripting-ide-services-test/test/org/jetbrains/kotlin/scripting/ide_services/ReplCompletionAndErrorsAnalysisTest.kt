@@ -403,6 +403,31 @@ class ReplCompletionAndErrorsAnalysisTest : TestCase() {
         }
     }
 
+    @Test
+    fun testResultField() = test {
+        run {
+            code = """
+                val resx = 1
+            """.trimIndent()
+            doCompile
+        }
+        run {
+            code = """
+                resx + 3
+            """.trimIndent()
+            doCompile
+        }
+        run {
+            code = "res"
+            cursor = 3
+            expect {
+                completions.mode = ComparisonType.EQUALS
+                addCompletion("res1", "res1", "Int", "property")
+                addCompletion("resx", "resx", "Int", "property")
+            }
+        }
+    }
+
     private val setupDefaultImportsCompletionRun: TestRunConfigurator = {
         compilationConfiguration = ScriptCompilationConfiguration {
             defaultImports(listOf("kotlin.math.atan"))
